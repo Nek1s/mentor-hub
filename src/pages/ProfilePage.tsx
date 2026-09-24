@@ -2,7 +2,7 @@ import EditRounded from '@mui/icons-material/EditRounded'
 import MailOutlineRounded from '@mui/icons-material/MailOutlineRounded'
 import SchoolOutlined from '@mui/icons-material/SchoolOutlined'
 import { Avatar, Box, Button, Chip, Paper, Stack, Typography } from '@mui/material'
-import { PageHeader } from '../components/PageHeader'
+import { PageHeader } from '../shared/ui/PageHeader'
 
 export function ProfilePage() {
   return (

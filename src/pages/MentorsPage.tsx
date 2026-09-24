@@ -2,9 +2,9 @@ import { useMemo, useState } from 'react'
 import SearchRounded from '@mui/icons-material/SearchRounded'
 import TuneRounded from '@mui/icons-material/TuneRounded'
 import { Box, InputAdornment, MenuItem, Select, TextField, Typography } from '@mui/material'
-import { MentorCard } from '../components/MentorCard'
-import { PageHeader } from '../components/PageHeader'
-import { mentors } from '../data/mockData'
+import { mentors } from '../entities/mentor/data/mentors'
+import { MentorCard } from '../entities/mentor/ui/MentorCard'
+import { PageHeader } from '../shared/ui/PageHeader'
 
 export function MentorsPage() {
   const [query, setQuery] = useState('')

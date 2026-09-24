@@ -4,9 +4,9 @@ import ArrowOutwardRounded from '@mui/icons-material/ArrowOutwardRounded'
 import CloseRounded from '@mui/icons-material/CloseRounded'
 import StickyNote2Rounded from '@mui/icons-material/StickyNote2Rounded'
 import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Paper, Stack, TextField, Typography } from '@mui/material'
-import { PageHeader } from '../components/PageHeader'
-import { initialNotes } from '../data/mockData'
-import type { Note } from '../types'
+import { initialNotes } from '../entities/note/data/initialNotes'
+import type { Note } from '../entities/note/model/types'
+import { PageHeader } from '../shared/ui/PageHeader'
 
 export function NotesPage() {
   const [notes, setNotes] = useState<Note[]>(initialNotes)

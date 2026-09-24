@@ -2,7 +2,7 @@ import { Link as RouterLink } from 'react-router-dom'
 import ArrowOutwardRounded from '@mui/icons-material/ArrowOutwardRounded'
 import StarRounded from '@mui/icons-material/StarRounded'
 import { Avatar, Box, Button, Chip, Paper, Stack, Typography } from '@mui/material'
-import type { Mentor } from '../types'
+import type { Mentor } from '../model/types'
 
 type MentorCardProps = {
   mentor: Mentor

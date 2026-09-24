@@ -4,8 +4,8 @@ import CalendarMonthRounded from '@mui/icons-material/CalendarMonthRounded'
 import CheckCircleRounded from '@mui/icons-material/CheckCircleRounded'
 import VideocamOutlined from '@mui/icons-material/VideocamOutlined'
 import { Avatar, Box, Button, Chip, Divider, Paper, Snackbar, Stack, Typography } from '@mui/material'
-import { PageHeader } from '../components/PageHeader'
-import { meetings } from '../data/mockData'
+import { meetings } from '../entities/appointment/data/meetings'
+import { PageHeader } from '../shared/ui/PageHeader'
 
 const dates = [
   { day: 'Сегодня', date: '13 сен' },

@@ -1,0 +1,40 @@
+import type { Mentor } from '../model/types'
+
+export const mentors: Mentor[] = [
+  {
+    id: 1,
+    name: 'Артем Ребриков',
+    role: 'Product designer',
+    company: 'Яндекс',
+    initials: 'АР',
+    color: '#90caf9',
+    skills: ['UX/UI', 'Портфолио', 'Карьера'],
+    rating: '5.0',
+    reviews: 24,
+    nextAvailable: 'Сегодня, 18:30',
+  },
+  {
+    id: 2,
+    name: 'Данил Олейник',
+    role: 'Frontend lead',
+    company: 'T-Bank',
+    initials: 'ДО',
+    color: '#a5d6a7',
+    skills: ['React', 'TypeScript', 'Code review'],
+    rating: '4.9',
+    reviews: 18,
+    nextAvailable: 'Завтра, 12:00',
+  },
+  {
+    id: 3,
+    name: 'Денис Быков',
+    role: 'Data analyst',
+    company: 'Ozon',
+    initials: 'ДБ',
+    color: '#ffcc80',
+    skills: ['SQL', 'Аналитика', 'Собеседования'],
+    rating: '5.0',
+    reviews: 31,
+    nextAvailable: 'Завтра, 19:00',
+  },
+]
