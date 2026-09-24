@@ -5,3 +5,5 @@ export type Note = {
   labels: string[]
   updatedAt: string
 }
+
+export type CreateNoteInput = Omit<Note, 'id' | 'updatedAt'>

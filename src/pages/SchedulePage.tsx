@@ -4,22 +4,38 @@ import CalendarMonthRounded from '@mui/icons-material/CalendarMonthRounded'
 import CheckCircleRounded from '@mui/icons-material/CheckCircleRounded'
 import VideocamOutlined from '@mui/icons-material/VideocamOutlined'
 import { Avatar, Box, Button, Chip, Divider, Paper, Snackbar, Stack, Typography } from '@mui/material'
-import { meetings } from '../entities/appointment/data/meetings'
+import { useAppData } from '../app/providers/AppDataProvider'
 import { PageHeader } from '../shared/ui/PageHeader'
 
 const dates = [
-  { day: 'Сегодня', date: '13 сен' },
-  { day: 'Завтра', date: '14 сен' },
-  { day: 'Пн', date: '15 сен' },
-  { day: 'Вт', date: '16 сен' },
-  { day: 'Ср', date: '17 сен' },
+  { day: 'Сегодня', date: '13 сен', meetingDate: 'Сегодня, 13 сентября' },
+  { day: 'Завтра', date: '14 сен', meetingDate: 'Завтра, 14 сентября' },
+  { day: 'Пн', date: '15 сен', meetingDate: '15 сентября, понедельник' },
+  { day: 'Вт', date: '16 сен', meetingDate: '16 сентября, вторник' },
+  { day: 'Ср', date: '17 сен', meetingDate: '17 сентября, среда' },
 ]
 const slots = ['12:00', '13:00', '16:30', '18:30', '19:30']
 
 export function SchedulePage() {
+  const { meetings, addMeeting } = useAppData()
   const [activeDate, setActiveDate] = useState(0)
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null)
   const [isBooked, setIsBooked] = useState(false)
+
+  const bookMeeting = () => {
+    if (selectedSlot === null) return
+
+    addMeeting({
+      date: dates[activeDate].meetingDate,
+      time: `${selectedSlot} — 45 минут`,
+      mentor: 'Артем Ребриков',
+      topic: 'Новая встреча с наставником',
+      initials: 'АР',
+      color: '#90caf9',
+    })
+    setSelectedSlot(null)
+    setIsBooked(true)
+  }
 
   return (
     <>
@@ -45,7 +61,7 @@ export function SchedulePage() {
               <Button key={slot} onClick={() => setSelectedSlot(slot)} variant={selectedSlot === slot ? 'contained' : 'outlined'} startIcon={<AccessTimeRounded />} sx={{ justifyContent: 'flex-start' }}>{slot}</Button>
             ))}
           </Box>
-          <Button disabled={!selectedSlot} onClick={() => setIsBooked(true)} variant="contained" fullWidth sx={{ mt: 2.5 }}>
+          <Button disabled={!selectedSlot} onClick={bookMeeting} variant="contained" fullWidth sx={{ mt: 2.5 }}>
             {selectedSlot ? `Записаться на ${selectedSlot}` : 'Выберите время'}
           </Button>
         </Paper>

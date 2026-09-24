@@ -2,11 +2,12 @@ import { useMemo, useState } from 'react'
 import SearchRounded from '@mui/icons-material/SearchRounded'
 import TuneRounded from '@mui/icons-material/TuneRounded'
 import { Box, InputAdornment, MenuItem, Select, TextField, Typography } from '@mui/material'
-import { mentors } from '../entities/mentor/data/mentors'
+import { useAppData } from '../app/providers/AppDataProvider'
 import { MentorCard } from '../entities/mentor/ui/MentorCard'
 import { PageHeader } from '../shared/ui/PageHeader'
 
 export function MentorsPage() {
+  const { mentors } = useAppData()
   const [query, setQuery] = useState('')
   const [direction, setDirection] = useState('Все направления')
   const filteredMentors = useMemo(() => {

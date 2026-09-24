@@ -8,3 +8,5 @@ export type Meeting = {
   color: string
   status: 'Подтверждено' | 'Ожидает ответа'
 }
+
+export type CreateMeetingInput = Omit<Meeting, 'id' | 'status'>

@@ -4,13 +4,12 @@ import ArrowOutwardRounded from '@mui/icons-material/ArrowOutwardRounded'
 import CloseRounded from '@mui/icons-material/CloseRounded'
 import StickyNote2Rounded from '@mui/icons-material/StickyNote2Rounded'
 import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Paper, Stack, TextField, Typography } from '@mui/material'
-import { initialNotes } from '../entities/note/data/initialNotes'
-import type { Note } from '../entities/note/model/types'
+import { useAppData } from '../app/providers/AppDataProvider'
 import { PageHeader } from '../shared/ui/PageHeader'
 
 export function NotesPage() {
-  const [notes, setNotes] = useState<Note[]>(initialNotes)
-  const [selectedId, setSelectedId] = useState(initialNotes[0].id)
+  const { notes, addNote: createNote } = useAppData()
+  const [selectedId, setSelectedId] = useState<number | null>(notes[0]?.id ?? null)
   const [isOpen, setIsOpen] = useState(false)
   const [title, setTitle] = useState('')
   const [text, setText] = useState('')
@@ -18,8 +17,7 @@ export function NotesPage() {
 
   const addNote = () => {
     if (!title.trim() || !text.trim()) return
-    const newNote: Note = { id: Date.now(), title: title.trim(), text: text.trim(), labels: ['Новая'], updatedAt: 'Только что' }
-    setNotes((currentNotes) => [newNote, ...currentNotes])
+    const newNote = createNote({ title: title.trim(), text: text.trim(), labels: ['Новая'] })
     setSelectedId(newNote.id)
     setTitle('')
     setText('')

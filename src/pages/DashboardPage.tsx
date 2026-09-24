@@ -4,7 +4,7 @@ import CalendarMonthRounded from '@mui/icons-material/CalendarMonthRounded'
 import ChevronRightRounded from '@mui/icons-material/ChevronRightRounded'
 import StickyNote2Rounded from '@mui/icons-material/StickyNote2Rounded'
 import { Avatar, Box, Button, Chip, Divider, Paper, Stack, Typography } from '@mui/material'
-import { meetings } from '../entities/appointment/data/meetings'
+import { useAppData } from '../app/providers/AppDataProvider'
 
 const metrics = [
   { value: '2', label: 'встречи запланированы', icon: <CalendarMonthRounded /> },
@@ -13,6 +13,7 @@ const metrics = [
 ]
 
 export function DashboardPage() {
+  const { meetings } = useAppData()
   const closestMeeting = meetings[0]
 
   return (
