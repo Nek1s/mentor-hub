@@ -1,28 +1,17 @@
 import { useState } from 'react'
 import AddRounded from '@mui/icons-material/AddRounded'
 import ArrowOutwardRounded from '@mui/icons-material/ArrowOutwardRounded'
-import CloseRounded from '@mui/icons-material/CloseRounded'
 import StickyNote2Rounded from '@mui/icons-material/StickyNote2Rounded'
-import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Paper, Stack, TextField, Typography } from '@mui/material'
+import { Box, Button, Chip, IconButton, Paper, Stack, Typography } from '@mui/material'
 import { useAppData } from '../app/providers/AppDataProvider'
+import { CreateNoteDialog } from '../features/create-note/ui/CreateNoteDialog'
 import { PageHeader } from '../shared/ui/PageHeader'
 
 export function NotesPage() {
-  const { notes, addNote: createNote } = useAppData()
+  const { notes } = useAppData()
   const [selectedId, setSelectedId] = useState<number | null>(notes[0]?.id ?? null)
   const [isOpen, setIsOpen] = useState(false)
-  const [title, setTitle] = useState('')
-  const [text, setText] = useState('')
   const selectedNote = notes.find((note) => note.id === selectedId) ?? notes[0]
-
-  const addNote = () => {
-    if (!title.trim() || !text.trim()) return
-    const newNote = createNote({ title: title.trim(), text: text.trim(), labels: ['Новая'] })
-    setSelectedId(newNote.id)
-    setTitle('')
-    setText('')
-    setIsOpen(false)
-  }
 
   return (
     <>
@@ -66,17 +55,7 @@ export function NotesPage() {
         )}
       </Box>
 
-      <Dialog open={isOpen} onClose={() => setIsOpen(false)} fullWidth maxWidth="sm">
-        <DialogTitle sx={{ pr: 6 }}>Новая заметка<IconButton onClick={() => setIsOpen(false)} aria-label="Закрыть" sx={{ position: 'absolute', right: 12, top: 12 }}><CloseRounded /></IconButton></DialogTitle>
-        <DialogContent>
-          <TextField value={title} onChange={(event) => setTitle(event.target.value)} autoFocus label="Заголовок" fullWidth sx={{ mt: 1 }} />
-          <TextField value={text} onChange={(event) => setText(event.target.value)} label="Текст заметки" fullWidth multiline minRows={5} sx={{ mt: 2 }} />
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2.5 }}>
-          <Button onClick={() => setIsOpen(false)}>Отмена</Button>
-          <Button onClick={addNote} variant="contained" disabled={!title.trim() || !text.trim()}>Сохранить</Button>
-        </DialogActions>
-      </Dialog>
+      <CreateNoteDialog open={isOpen} onClose={() => setIsOpen(false)} onCreated={setSelectedId} />
     </>
   )
 }
