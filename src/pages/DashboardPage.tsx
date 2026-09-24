@@ -5,6 +5,7 @@ import ChevronRightRounded from '@mui/icons-material/ChevronRightRounded'
 import StickyNote2Rounded from '@mui/icons-material/StickyNote2Rounded'
 import { Avatar, Box, Button, Chip, Divider, Paper, Stack, Typography } from '@mui/material'
 import { useAppData } from '../app/providers/AppDataProvider'
+import { DataStateView } from '../shared/ui/DataStateView'
 
 const metrics = [
   { value: '2', label: 'встречи запланированы', icon: <CalendarMonthRounded /> },
@@ -13,7 +14,7 @@ const metrics = [
 ]
 
 export function DashboardPage() {
-  const { meetings } = useAppData()
+  const { meetings, dataStatus, retryDataLoading } = useAppData()
   const closestMeeting = meetings[0]
 
   return (
@@ -26,6 +27,13 @@ export function DashboardPage() {
         <Button component={RouterLink} to="/mentors" variant="outlined" endIcon={<ArrowForwardRounded />}>Найти наставника</Button>
       </Box>
 
+      <DataStateView
+        status={dataStatus}
+        isEmpty={meetings.length === 0}
+        emptyTitle="Ближайших встреч пока нет"
+        emptyDescription="Перейдите в расписание, чтобы выбрать время у наставника."
+        onRetry={retryDataLoading}
+      >
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '1.45fr 0.9fr' }, gap: 2.5 }}>
         <Paper variant="outlined" sx={{ p: { xs: 2.5, sm: 3 }, borderColor: 'divider' }}>
           <Box sx={{ display: 'flex', minHeight: 250, flexDirection: 'column', justifyContent: 'space-between' }}>
@@ -89,6 +97,7 @@ export function DashboardPage() {
           </Paper>
         ))}
       </Stack>
+      </DataStateView>
     </>
   )
 }

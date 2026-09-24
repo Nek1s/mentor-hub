@@ -1,13 +1,14 @@
 import { useMemo, useState } from 'react'
 import SearchRounded from '@mui/icons-material/SearchRounded'
 import TuneRounded from '@mui/icons-material/TuneRounded'
-import { Box, InputAdornment, MenuItem, Select, TextField, Typography } from '@mui/material'
+import { Box, InputAdornment, MenuItem, Select, TextField } from '@mui/material'
 import { useAppData } from '../app/providers/AppDataProvider'
 import { MentorCard } from '../entities/mentor/ui/MentorCard'
+import { DataStateView } from '../shared/ui/DataStateView'
 import { PageHeader } from '../shared/ui/PageHeader'
 
 export function MentorsPage() {
-  const { mentors } = useAppData()
+  const { mentors, dataStatus, retryDataLoading } = useAppData()
   const [query, setQuery] = useState('')
   const [direction, setDirection] = useState('Все направления')
   const filteredMentors = useMemo(() => {
@@ -37,16 +38,17 @@ export function MentorsPage() {
           <MenuItem value="SQL">Аналитика</MenuItem>
         </Select>
       </Box>
-      {filteredMentors.length > 0 ? (
+      <DataStateView
+        status={dataStatus}
+        isEmpty={filteredMentors.length === 0}
+        emptyTitle="Ничего не нашли"
+        emptyDescription="Попробуйте изменить запрос или выбрать другое направление."
+        onRetry={retryDataLoading}
+      >
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))', xl: 'repeat(3, minmax(0, 1fr))' }, gap: 2 }}>
           {filteredMentors.map((mentor) => <MentorCard key={mentor.id} mentor={mentor} />)}
         </Box>
-      ) : (
-        <Box sx={{ py: 8, textAlign: 'center', border: '1px dashed #d7dfd8', borderRadius: 3 }}>
-          <Typography fontWeight={700}>Ничего не нашли</Typography>
-          <Typography color="text.secondary" variant="body2" sx={{ mt: 0.5 }}>Попробуйте изменить запрос или выбрать другое направление.</Typography>
-        </Box>
-      )}
+      </DataStateView>
     </>
   )
 }
