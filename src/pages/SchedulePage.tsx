@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import CheckCircleRounded from '@mui/icons-material/CheckCircleRounded'
 import VideocamOutlined from '@mui/icons-material/VideocamOutlined'
-import { Avatar, Box, Chip, Paper, Snackbar, Stack, Typography } from '@mui/material'
+import { Avatar, Box, Chip, Grow, Paper, Snackbar, Stack, Typography } from '@mui/material'
 import { useAppData } from '../app/providers/AppDataProvider'
 import { CreateAppointmentForm } from '../features/create-appointment/ui/CreateAppointmentForm'
 import { DataStateView } from '../shared/ui/DataStateView'
@@ -27,8 +27,9 @@ export function SchedulePage() {
           <Paper variant="outlined" sx={{ p: { xs: 2, sm: 3 } }}>
             <Typography variant="h5">Ближайшие встречи</Typography>
             <Stack spacing={2} sx={{ mt: 2.5 }}>
-              {meetings.map((meeting) => (
-                <Box key={meeting.id}>
+              {meetings.map((meeting, index) => (
+                <Grow key={meeting.id} in timeout={180 + Math.min(index, 3) * 60}>
+                <Box>
                   <Stack direction="row" justifyContent="space-between" spacing={1}>
                     <Typography variant="body2" fontWeight={700}>{meeting.date}</Typography>
                     <Chip label={meeting.status} size="small" color={meeting.status === 'Подтверждено' ? 'success' : 'warning'} variant="outlined" />
@@ -44,6 +45,7 @@ export function SchedulePage() {
                     </Box>
                   </Stack>
                 </Box>
+                </Grow>
               ))}
             </Stack>
           </Paper>

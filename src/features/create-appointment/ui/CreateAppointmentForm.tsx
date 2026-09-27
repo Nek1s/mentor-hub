@@ -63,7 +63,7 @@ export function CreateAppointmentForm({ onCreated }: CreateAppointmentFormProps)
               setSlotError('')
             }}
             variant={activeDate === index ? 'contained' : 'outlined'}
-            sx={{ minWidth: 82, flexDirection: 'column', py: 1.1, lineHeight: 1.25 }}
+            sx={{ minWidth: 82, flexDirection: 'column', py: 1.1, lineHeight: 1.25, transition: 'transform 160ms ease', '&:hover': { transform: 'translateY(-2px)' } }}
           >
             <Typography component="span" variant="caption" sx={{ color: 'inherit', opacity: activeDate === index ? 0.82 : 0.75 }}>
               {date.day}
@@ -84,7 +84,7 @@ export function CreateAppointmentForm({ onCreated }: CreateAppointmentFormProps)
             }}
             variant={selectedSlot === slot ? 'contained' : 'outlined'}
             startIcon={<AccessTimeRounded />}
-            sx={{ justifyContent: 'flex-start' }}
+            sx={{ justifyContent: 'flex-start', transition: 'transform 160ms ease', '&:hover': { transform: 'translateY(-2px)' } }}
           >
             {slot}
           </Button>
