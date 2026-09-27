@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import SearchRounded from '@mui/icons-material/SearchRounded'
 import TuneRounded from '@mui/icons-material/TuneRounded'
 import { Box, InputAdornment, MenuItem, Select, TextField } from '@mui/material'
-import { useAppData } from '../app/providers/AppDataProvider'
+import { useAppData } from '../app/providers/useAppData'
 import { MentorCard } from '../entities/mentor/ui/MentorCard'
 import { DataStateView } from '../shared/ui/DataStateView'
 import { PageHeader } from '../shared/ui/PageHeader'
@@ -18,7 +18,7 @@ export function MentorsPage() {
       const matchesDirection = direction === 'Все направления' || mentor.skills.includes(direction)
       return matchesQuery && matchesDirection
     })
-  }, [direction, query])
+  }, [direction, mentors, query])
 
   return (
     <>

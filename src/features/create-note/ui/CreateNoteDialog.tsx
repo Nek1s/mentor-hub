@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import CloseRounded from '@mui/icons-material/CloseRounded'
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, TextField } from '@mui/material'
-import { useAppData } from '../../../app/providers/AppDataProvider'
+import { useAppData } from '../../../app/providers/useAppData'
 
 type CreateNoteDialogProps = {
   open: boolean

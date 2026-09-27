@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { meetings as initialMeetings } from '../../entities/appointment/data/meetings'
 import type { CreateMeetingInput, Meeting } from '../../entities/appointment/model/types'
 import { mentors as initialMentors } from '../../entities/mentor/data/mentors'
@@ -6,18 +6,7 @@ import type { Mentor } from '../../entities/mentor/model/types'
 import { initialNotes } from '../../entities/note/data/initialNotes'
 import type { CreateNoteInput, Note } from '../../entities/note/model/types'
 import type { DataStatus } from '../../shared/model/dataStatus'
-
-type AppDataContextValue = {
-  mentors: Mentor[]
-  meetings: Meeting[]
-  notes: Note[]
-  dataStatus: DataStatus
-  retryDataLoading: () => void
-  addMeeting: (data: CreateMeetingInput) => Meeting
-  addNote: (data: CreateNoteInput) => Note
-}
-
-const AppDataContext = createContext<AppDataContextValue | null>(null)
+import { AppDataContext } from './AppDataContext'
 
 type AppDataProviderProps = {
   children: ReactNode
@@ -71,14 +60,4 @@ export function AppDataProvider({ children }: AppDataProviderProps) {
       {children}
     </AppDataContext.Provider>
   )
-}
-
-export function useAppData() {
-  const context = useContext(AppDataContext)
-
-  if (context === null) {
-    throw new Error('useAppData нужно использовать внутри AppDataProvider')
-  }
-
-  return context
 }

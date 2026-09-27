@@ -2,7 +2,7 @@ import { useState } from 'react'
 import AccessTimeRounded from '@mui/icons-material/AccessTimeRounded'
 import CalendarMonthRounded from '@mui/icons-material/CalendarMonthRounded'
 import { Box, Button, Divider, FormHelperText, Paper, Stack, TextField, Typography } from '@mui/material'
-import { useAppData } from '../../../app/providers/AppDataProvider'
+import { useAppData } from '../../../app/providers/useAppData'
 
 type CreateAppointmentFormProps = {
   onCreated: () => void

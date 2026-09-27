@@ -4,7 +4,7 @@ import CalendarMonthRounded from '@mui/icons-material/CalendarMonthRounded'
 import ChevronRightRounded from '@mui/icons-material/ChevronRightRounded'
 import StickyNote2Rounded from '@mui/icons-material/StickyNote2Rounded'
 import { Avatar, Box, Button, Chip, Divider, Paper, Stack, Typography } from '@mui/material'
-import { useAppData } from '../app/providers/AppDataProvider'
+import { useAppData } from '../app/providers/useAppData'
 import { DataStateView } from '../shared/ui/DataStateView'
 
 const metrics = [
