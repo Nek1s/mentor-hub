@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
+from app.api.dependencies import get_current_user
 from app.core.config import Settings, get_settings
 from app.db.session import get_db
-from app.schemas.auth import AccessTokenResponse, LoginRequest, RefreshRequest, RegisterRequest, TokenPair
+from app.models.user import User
+from app.schemas.auth import AccessTokenResponse, LoginRequest, RefreshRequest, RegisterRequest, TokenPair, UserRead
 from app.services import auth as auth_service
 
 router = APIRouter(prefix="/auth", tags=["Аутентификация"])
@@ -40,3 +42,10 @@ def refresh_access_token(
     """Обновляет access token по действующему refresh token."""
 
     return auth_service.refresh_access_token(db, data.refresh_token, settings)
+
+
+@router.get("/me", response_model=UserRead)
+def read_current_user(current_user: User = Depends(get_current_user)) -> UserRead:
+    """Возвращает данные пользователя, которому принадлежит access token."""
+
+    return current_user

@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.orm import Session
 
+from app.api.dependencies import require_mentor
 from app.db.session import get_db
+from app.models.user import User
 from app.schemas.mentor import MentorCreate, MentorRead, MentorUpdate
 from app.services import mentors as mentor_service
 
@@ -19,16 +21,25 @@ def read_mentor(mentor_id: int, db: Session = Depends(get_db)) -> MentorRead:
 
 
 @router.post("", response_model=MentorRead, status_code=status.HTTP_201_CREATED)
-def create_mentor(data: MentorCreate, db: Session = Depends(get_db)) -> MentorRead:
+def create_mentor(
+    data: MentorCreate, _: User = Depends(require_mentor), db: Session = Depends(get_db)
+) -> MentorRead:
     return mentor_service.create_mentor(db, data)
 
 
 @router.patch("/{mentor_id}", response_model=MentorRead)
-def edit_mentor(mentor_id: int, data: MentorUpdate, db: Session = Depends(get_db)) -> MentorRead:
+def edit_mentor(
+    mentor_id: int,
+    data: MentorUpdate,
+    _: User = Depends(require_mentor),
+    db: Session = Depends(get_db),
+) -> MentorRead:
     return mentor_service.update_mentor(db, mentor_id, data)
 
 
 @router.delete("/{mentor_id}", status_code=status.HTTP_204_NO_CONTENT)
-def remove_mentor(mentor_id: int, db: Session = Depends(get_db)) -> Response:
+def remove_mentor(
+    mentor_id: int, _: User = Depends(require_mentor), db: Session = Depends(get_db)
+) -> Response:
     mentor_service.delete_mentor(db, mentor_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
