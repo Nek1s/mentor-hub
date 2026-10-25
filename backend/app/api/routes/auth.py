@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import Settings, get_settings
 from app.db.session import get_db
-from app.schemas.auth import LoginRequest, RegisterRequest, TokenPair
+from app.schemas.auth import AccessTokenResponse, LoginRequest, RefreshRequest, RegisterRequest, TokenPair
 from app.services import auth as auth_service
 
 router = APIRouter(prefix="/auth", tags=["Аутентификация"])
@@ -29,3 +29,14 @@ def login(
     """Выполняет вход пользователя по email и паролю."""
 
     return auth_service.login_user(db, data, settings)
+
+
+@router.post("/refresh", response_model=AccessTokenResponse)
+def refresh_access_token(
+    data: RefreshRequest,
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
+) -> AccessTokenResponse:
+    """Обновляет access token по действующему refresh token."""
+
+    return auth_service.refresh_access_token(db, data.refresh_token, settings)

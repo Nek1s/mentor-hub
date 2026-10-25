@@ -41,3 +41,16 @@ class TokenPair(BaseModel):
     refresh_token: str
     token_type: str = "bearer"
     user: UserRead
+
+
+class RefreshRequest(BaseModel):
+    """Действующий refresh token, которым запрашивается новый access token."""
+
+    refresh_token: str = Field(min_length=1)
+
+
+class AccessTokenResponse(BaseModel):
+    """Новый короткоживущий токен для защищённых API-маршрутов."""
+
+    access_token: str
+    token_type: str = "bearer"

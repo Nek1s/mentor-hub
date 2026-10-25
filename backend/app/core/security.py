@@ -1,6 +1,7 @@
 """Вспомогательные функции для паролей и JWT-токенов."""
 
 from datetime import datetime, timedelta, timezone
+from typing import Any
 from uuid import uuid4
 
 import jwt
@@ -39,3 +40,16 @@ def create_refresh_token(user_id: int, settings: Settings) -> tuple[str, str, da
     payload = {"sub": str(user_id), "type": "refresh", "jti": token_id, "exp": expires_at}
     token = jwt.encode(payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
     return token, token_id, expires_at
+
+
+def decode_token(token: str, expected_type: str, settings: Settings) -> dict[str, Any] | None:
+    """Проверяет подпись и срок JWT, затем убеждается в назначении токена."""
+
+    try:
+        payload = jwt.decode(token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm])
+    except jwt.InvalidTokenError:
+        return None
+
+    if payload.get("type") != expected_type or not payload.get("sub"):
+        return None
+    return payload
