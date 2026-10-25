@@ -30,6 +30,37 @@ const browser = await chromium.launch({ executablePath, headless: true })
 const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 })
 
 try {
+  await page.route('**/api/v1/auth/me', async (route) => {
+    await route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify({
+        id: 1,
+        full_name: 'Никита Иванов',
+        email: 'nikita.ivanov@example.com',
+        role: 'student',
+        student_id: 1,
+        created_at: '2026-01-01T00:00:00+00:00',
+      }),
+    })
+  })
+
+  await page.goto(`${appUrl}/login`, { waitUntil: 'networkidle' })
+  await page.evaluate(() => localStorage.clear())
+  await page.reload({ waitUntil: 'networkidle' })
+  await page.evaluate(() => window.scrollTo(0, 0))
+  await page.screenshot({ path: join(outputDirectory, 'login.png'), fullPage: true })
+  console.log('Сохранён скриншот: вход')
+
+  await page.goto(`${appUrl}/register`, { waitUntil: 'networkidle' })
+  await page.evaluate(() => window.scrollTo(0, 0))
+  await page.screenshot({ path: join(outputDirectory, 'register.png'), fullPage: true })
+  console.log('Сохранён скриншот: регистрация')
+
+  await page.addInitScript(() => {
+    localStorage.setItem('mentorhub_access_token', 'demo-access-token')
+    localStorage.setItem('mentorhub_refresh_token', 'demo-refresh-token')
+  })
+
   for (const [route, title] of pages) {
     await page.goto(`${appUrl}/${route}`, { waitUntil: 'networkidle' })
     await page.waitForTimeout(600)
