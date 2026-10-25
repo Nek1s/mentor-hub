@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 import app.models  # noqa: F401  # Импорт регистрирует SQLAlchemy-модели в Base.metadata.
 from app.api.router import api_router
@@ -22,6 +23,14 @@ app = FastAPI(
     description="API учебного сервиса наставничества MentorHub.",
     version="0.1.0",
     lifespan=lifespan,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins,
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(api_router, prefix=settings.api_v1_prefix)

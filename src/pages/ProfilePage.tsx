@@ -3,15 +3,19 @@ import MailOutlineRounded from '@mui/icons-material/MailOutlineRounded'
 import SchoolOutlined from '@mui/icons-material/SchoolOutlined'
 import { Avatar, Box, Button, Chip, Paper, Stack, Typography } from '@mui/material'
 import { PageHeader } from '../shared/ui/PageHeader'
+import { useAuth } from '../app/providers/useAuth'
 
 export function ProfilePage() {
+  const { user } = useAuth()
+  const initials = user?.full_name.split(' ').map((part) => part[0]).join('').slice(0, 2).toUpperCase() ?? 'ПР'
+
   return (
     <>
       <PageHeader title="Мой профиль" description="Информация, которую видят наставники при рассмотрении заявки." />
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '0.8fr 1.2fr' }, gap: 2.5, maxWidth: 940 }}>
         <Paper variant="outlined" sx={{ p: 3, textAlign: 'center' }}>
-          <Avatar sx={{ width: 88, height: 88, mx: 'auto', fontSize: 27, fontWeight: 700 }}>НИ</Avatar>
-          <Typography variant="h4" sx={{ mt: 2 }}>Никита Иванов</Typography>
+          <Avatar sx={{ width: 88, height: 88, mx: 'auto', fontSize: 27, fontWeight: 700 }}>{initials}</Avatar>
+          <Typography variant="h4" sx={{ mt: 2 }}>{user?.full_name ?? 'Профиль'}</Typography>
           <Typography color="text.secondary" variant="body2" sx={{ mt: 0.5 }}>Начинающий frontend-разработчик</Typography>
           <Chip label="Ищу наставника" color="success" size="small" sx={{ mt: 1.5 }} />
           <Button variant="outlined" startIcon={<EditRounded />} fullWidth sx={{ mt: 3 }}>Редактировать профиль</Button>
@@ -20,7 +24,7 @@ export function ProfilePage() {
           <Typography variant="h5">О себе</Typography>
           <Typography color="text.secondary" sx={{ mt: 1.1, lineHeight: 1.75 }}>Перехожу в frontend-разработку и собираю первое портфолио. Хочу получить обратную связь по проектам, увереннее проходить собеседования и составить реалистичный план развития.</Typography>
           <Stack spacing={2} sx={{ mt: 3 }}>
-            <Stack direction="row" spacing={1.25} alignItems="center"><MailOutlineRounded color="action" /><Box><Typography variant="caption" color="text.secondary">Почта</Typography><Typography variant="body2" fontWeight={650}>nikita.ivanov@example.com</Typography></Box></Stack>
+            <Stack direction="row" spacing={1.25} alignItems="center"><MailOutlineRounded color="action" /><Box><Typography variant="caption" color="text.secondary">Почта</Typography><Typography variant="body2" fontWeight={650}>{user?.email ?? '—'}</Typography></Box></Stack>
             <Stack direction="row" spacing={1.25} alignItems="center"><SchoolOutlined color="action" /><Box><Typography variant="caption" color="text.secondary">Цель на ближайший месяц</Typography><Typography variant="body2" fontWeight={650}>Оформить портфолио и подготовиться к интервью</Typography></Box></Stack>
           </Stack>
           <Typography variant="body2" fontWeight={700} sx={{ mt: 3 }}>Интересующие направления</Typography>

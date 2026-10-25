@@ -1,14 +1,14 @@
 import { AppRouter } from './router/AppRouter'
+import { AuthProvider } from './providers/AuthProvider'
 import { AppDataProvider } from './providers/AppDataProvider'
-import { AppShell } from '../shared/ui/AppShell'
 
 function App() {
   return (
-    <AppDataProvider>
-      <AppShell>
+    <AuthProvider>
+      <AppDataProvider>
         <AppRouter />
-      </AppShell>
-    </AppDataProvider>
+      </AppDataProvider>
+    </AuthProvider>
   )
 }
 
