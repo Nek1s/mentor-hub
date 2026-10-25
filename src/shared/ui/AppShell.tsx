@@ -1,7 +1,9 @@
 import { useState, type ReactNode } from 'react'
-import { Link as RouterLink, useLocation } from 'react-router-dom'
+import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom'
+import LogoutRounded from '@mui/icons-material/LogoutRounded'
 import MenuRounded from '@mui/icons-material/MenuRounded'
 import { AppBar, Box, Button, Container, IconButton, Menu, MenuItem, Toolbar, Typography } from '@mui/material'
+import { useAuth } from '../../app/providers/useAuth'
 
 type AppShellProps = {
   children: ReactNode
@@ -18,6 +20,16 @@ const navigation = [
 export function AppShell({ children }: AppShellProps) {
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null)
   const { pathname } = useLocation()
+  const navigate = useNavigate()
+  const { signOut } = useAuth()
+
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+    } finally {
+      navigate('/login', { replace: true })
+    }
+  }
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
@@ -41,6 +53,9 @@ export function AppShell({ children }: AppShellProps) {
                   {item.label}
                 </Button>
               ))}
+              <Button color="inherit" startIcon={<LogoutRounded />} onClick={() => void handleSignOut()}>
+                Выйти
+              </Button>
             </Box>
 
             <IconButton color="inherit" onClick={(event) => setMenuAnchor(event.currentTarget)} aria-label="Открыть меню" sx={{ display: { xs: 'flex', md: 'none' }, ml: 'auto' }}>
@@ -52,6 +67,10 @@ export function AppShell({ children }: AppShellProps) {
                   {item.label}
                 </MenuItem>
               ))}
+              <MenuItem onClick={() => { setMenuAnchor(null); void handleSignOut() }}>
+                <LogoutRounded fontSize="small" />
+                <Typography component="span" sx={{ ml: 1 }}>Выйти</Typography>
+              </MenuItem>
             </Menu>
           </Toolbar>
         </Container>

@@ -100,6 +100,31 @@ def refresh_access_token(db: Session, refresh_token: str, settings: Settings) ->
     return AccessTokenResponse(access_token=create_access_token(user.id, settings))
 
 
+def logout_user(db: Session, refresh_token: str, settings: Settings) -> None:
+    """Отзывает refresh-сессию, чтобы она больше не могла обновить access token."""
+
+    payload = decode_token(refresh_token, "refresh", settings)
+    if payload is None or not isinstance(payload.get("jti"), str):
+        raise _invalid_refresh_token()
+
+    try:
+        user_id = int(payload["sub"])
+    except (TypeError, ValueError):
+        raise _invalid_refresh_token() from None
+
+    refresh_session = db.scalar(
+        select(RefreshSession).where(
+            RefreshSession.token_id == payload["jti"],
+            RefreshSession.user_id == user_id,
+        )
+    )
+    if refresh_session is None or refresh_session.revoked_at is not None:
+        raise _invalid_refresh_token()
+
+    refresh_session.revoked_at = datetime.now(timezone.utc)
+    db.commit()
+
+
 def _create_token_pair(db: Session, user: User, settings: Settings) -> dict[str, str]:
     """Выпускает JWT и сохраняет серверную запись refresh-сессии."""
 

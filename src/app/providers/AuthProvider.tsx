@@ -51,6 +51,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
     applySession(result.user, { accessToken: result.access_token, refreshToken: result.refresh_token })
   }
 
+  const signOut = async () => {
+    const storedTokens = readTokens()
+
+    try {
+      if (storedTokens) {
+        await authApi.logout(storedTokens.refreshToken)
+      }
+    } catch {
+      // Локальная сессия должна завершиться даже при временной недоступности API.
+    } finally {
+      clearTokens()
+      setUser(null)
+      setStatus('unauthenticated')
+    }
+  }
+
   useEffect(() => {
     let isActive = true
     const storedTokens = readTokens()
@@ -91,5 +107,5 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, [])
 
-  return <AuthContext.Provider value={{ status, user, signIn, signUp }}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={{ status, user, signIn, signUp, signOut }}>{children}</AuthContext.Provider>
 }

@@ -8,6 +8,7 @@ export type AuthContextValue = {
   user: AuthUser | null
   signIn: (data: LoginPayload) => Promise<void>
   signUp: (data: RegisterPayload) => Promise<void>
+  signOut: () => Promise<void>
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null)

@@ -55,6 +55,10 @@ async function request<T>(path: string, options: RequestInit = {}, accessToken?:
     throw new ApiRequestError(typeof detail === 'string' ? detail : 'Не удалось выполнить запрос.', response.status)
   }
 
+  if (response.status === 204) {
+    return undefined as T
+  }
+
   return response.json() as Promise<T>
 }
 
@@ -62,5 +66,6 @@ export const authApi = {
   register: (data: RegisterPayload) => request<AuthTokens>('/auth/register', { method: 'POST', body: JSON.stringify(data) }),
   login: (data: LoginPayload) => request<AuthTokens>('/auth/login', { method: 'POST', body: JSON.stringify(data) }),
   refresh: (refreshToken: string) => request<RefreshResponse>('/auth/refresh', { method: 'POST', body: JSON.stringify({ refresh_token: refreshToken }) }),
+  logout: (refreshToken: string) => request<void>('/auth/logout', { method: 'POST', body: JSON.stringify({ refresh_token: refreshToken }) }),
   getCurrentUser: (accessToken: string) => request<AuthUser>('/auth/me', {}, accessToken),
 }

@@ -49,6 +49,12 @@ class RefreshRequest(BaseModel):
     refresh_token: str = Field(min_length=1)
 
 
+class LogoutRequest(BaseModel):
+    """Refresh token текущей сессии, которую пользователь завершает."""
+
+    refresh_token: str = Field(min_length=1)
+
+
 class AccessTokenResponse(BaseModel):
     """Новый короткоживущий токен для защищённых API-маршрутов."""
 
