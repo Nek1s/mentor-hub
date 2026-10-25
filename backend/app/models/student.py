@@ -18,3 +18,4 @@ class Student(Base):
 
     appointments = relationship("Appointment", back_populates="student", cascade="all, delete-orphan")
     notes = relationship("Note", back_populates="student", cascade="all, delete-orphan")
+    user = relationship("User", back_populates="student", uselist=False)
