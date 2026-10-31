@@ -39,6 +39,16 @@ def update_student(db: Session, student_id: int, data: StudentUpdate) -> Student
         _ensure_email_is_free(db, str(changes["email"]), student_id)
     for field, value in changes.items():
         setattr(student, field, value)
+    if student.user is not None:
+        if 'full_name' in changes:
+            student.user.full_name = student.full_name
+        if 'email' in changes:
+            from app.models.user import User
+
+            existing_user = db.scalar(select(User).where(User.email == student.email, User.id != student.user.id))
+            if existing_user is not None:
+                raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Пользователь с такой почтой уже существует")
+            student.user.email = student.email
     db.commit()
     db.refresh(student)
     return student
