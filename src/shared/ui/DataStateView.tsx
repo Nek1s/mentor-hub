@@ -8,10 +8,11 @@ type DataStateViewProps = {
   emptyTitle: string
   emptyDescription: string
   onRetry: () => void
+  errorMessage?: string
   children: ReactNode
 }
 
-export function DataStateView({ status, isEmpty, emptyTitle, emptyDescription, onRetry, children }: DataStateViewProps) {
+export function DataStateView({ status, isEmpty, emptyTitle, emptyDescription, onRetry, errorMessage = 'Не удалось подготовить демонстрационные данные. Попробуйте ещё раз.', children }: DataStateViewProps) {
   if (status === 'loading') {
     return (
       <Paper variant="outlined" sx={{ display: 'grid', minHeight: 220, placeItems: 'center', p: 3 }}>
@@ -29,7 +30,7 @@ export function DataStateView({ status, isEmpty, emptyTitle, emptyDescription, o
         severity="error"
         action={<Button color="inherit" size="small" onClick={onRetry}>Повторить</Button>}
       >
-        Не удалось подготовить демонстрационные данные. Попробуйте ещё раз.
+        {errorMessage}
       </Alert>
     )
   }
