@@ -1,57 +1,115 @@
-import { useState } from 'react'
-import CheckCircleRounded from '@mui/icons-material/CheckCircleRounded'
-import VideocamOutlined from '@mui/icons-material/VideocamOutlined'
-import { Avatar, Box, Chip, Grow, Paper, Snackbar, Stack, Typography } from '@mui/material'
-import { useAppData } from '../app/providers/useAppData'
-import { CreateAppointmentForm } from '../features/create-appointment/ui/CreateAppointmentForm'
+import { useEffect, useState, type FormEvent } from 'react'
+import { Link as RouterLink, useSearchParams } from 'react-router-dom'
+import { Alert, Box, Button, MenuItem, Paper, Stack, TextField, Typography } from '@mui/material'
+import { useAuth } from '../app/providers/useAuth'
+import { appointmentsApi, type Appointment } from '../entities/appointment/api/appointments'
+import { getMentors, type MentorResponse } from '../entities/mentor/api/mentors'
+import { ApiRequestError } from '../shared/api/client'
+import type { DataStatus } from '../shared/model/dataStatus'
 import { DataStateView } from '../shared/ui/DataStateView'
 import { PageHeader } from '../shared/ui/PageHeader'
 
+function localDateTime(value: string) {
+  const date = new Date(value)
+  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+  return local.toISOString().slice(0, 16)
+}
+
 export function SchedulePage() {
-  const { meetings, dataStatus, retryDataLoading } = useAppData()
-  const [isBooked, setIsBooked] = useState(false)
+  const { user } = useAuth()
+  const [searchParams] = useSearchParams()
+  const [mentors, setMentors] = useState<MentorResponse[]>([])
+  const [meetings, setMeetings] = useState<Appointment[]>([])
+  const [status, setStatus] = useState<DataStatus>('loading')
+  const [error, setError] = useState('')
+  const [notice, setNotice] = useState('')
+  const [attempt, setAttempt] = useState(0)
+  const [mentorId, setMentorId] = useState(searchParams.get('mentor') ?? '')
+  const [date, setDate] = useState('')
+  const [topic, setTopic] = useState('')
+  const [editingId, setEditingId] = useState<number | null>(null)
+  const [busy, setBusy] = useState(false)
 
-  return (
-    <>
-      <PageHeader title="Расписание" description="Управляйте встречами и выбирайте свободное время наставников." />
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '1.2fr 0.8fr' }, gap: 2.5 }}>
-        <CreateAppointmentForm onCreated={() => setIsBooked(true)} />
+  useEffect(() => {
+    const controller = new AbortController()
+    Promise.all([getMentors(controller.signal), appointmentsApi.list(controller.signal)]).then(([people, appointments]) => {
+      setMentors(people)
+      setMeetings(appointments)
+      setStatus('ready')
+    }).catch((requestError: unknown) => {
+      if (controller.signal.aborted) return
+      setError(requestError instanceof ApiRequestError ? requestError.message : 'Не удалось загрузить расписание.')
+      setStatus('error')
+    })
+    return () => controller.abort()
+  }, [attempt])
 
-        <DataStateView
-          status={dataStatus}
-          isEmpty={meetings.length === 0}
-          emptyTitle="Встреч пока нет"
-          emptyDescription="Выберите дату, время и тему, чтобы создать первую запись."
-          onRetry={retryDataLoading}
-        >
-          <Paper variant="outlined" sx={{ p: { xs: 2, sm: 3 } }}>
-            <Typography variant="h5">Ближайшие встречи</Typography>
-            <Stack spacing={2} sx={{ mt: 2.5 }}>
-              {meetings.map((meeting, index) => (
-                <Grow key={meeting.id} in timeout={180 + Math.min(index, 3) * 60}>
-                <Box>
-                  <Stack direction="row" justifyContent="space-between" spacing={1}>
-                    <Typography variant="body2" fontWeight={700}>{meeting.date}</Typography>
-                    <Chip label={meeting.status} size="small" color={meeting.status === 'Подтверждено' ? 'success' : 'warning'} variant="outlined" />
-                  </Stack>
-                  <Stack direction="row" spacing={1.1} alignItems="center" sx={{ mt: 1.25 }}>
-                    <Avatar sx={{ width: 34, height: 34, bgcolor: meeting.color, color: '#263436', fontWeight: 700, fontSize: 12 }}>{meeting.initials}</Avatar>
-                    <Box>
-                      <Typography variant="body2" fontWeight={700}>{meeting.mentor}</Typography>
-                      <Stack direction="row" alignItems="center" spacing={0.5}>
-                        <VideocamOutlined sx={{ fontSize: 15, color: 'text.secondary' }} />
-                        <Typography variant="caption" color="text.secondary">{meeting.time}</Typography>
-                      </Stack>
-                    </Box>
-                  </Stack>
-                </Box>
-                </Grow>
-              ))}
-            </Stack>
-          </Paper>
-        </DataStateView>
+  const reload = () => { setError(''); setStatus('loading'); setAttempt((value) => value + 1) }
+  const resetForm = () => { setEditingId(null); setDate(''); setTopic('') }
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!user?.student_id || !mentorId || !date || topic.trim().length < 3) { setError('Выберите наставника и время, укажите тему (минимум 3 символа).'); return }
+    const scheduled = new Date(date)
+    if (Number.isNaN(scheduled.getTime()) || scheduled.getTime() <= Date.now()) { setError('Выберите дату и время в будущем.'); return }
+    setError(''); setNotice(''); setBusy(true)
+    try {
+      const data = { topic: topic.trim(), scheduled_at: scheduled.toISOString() }
+      if (editingId !== null) {
+        const updated = await appointmentsApi.update(editingId, data)
+        setMeetings((current) => current.map((item) => item.id === updated.id ? updated : item))
+      } else {
+        const created = await appointmentsApi.create({ ...data, student_id: user.student_id, mentor_id: Number(mentorId), duration_minutes: 45 })
+        setMeetings((current) => [...current, created])
+      }
+      resetForm(); setNotice('Встреча сохранена.')
+    } catch (requestError) { setError(requestError instanceof ApiRequestError ? requestError.message : 'Не удалось сохранить встречу.') }
+    finally { setBusy(false) }
+  }
+
+  const remove = async (id: number) => {
+    if (!window.confirm('Удалить эту встречу?')) return
+    setError(''); setBusy(true)
+    try {
+      await appointmentsApi.remove(id)
+      setMeetings((current) => current.filter((item) => item.id !== id))
+      if (editingId === id) resetForm()
+      setNotice('Встреча удалена.')
+    } catch (requestError) { setError(requestError instanceof ApiRequestError ? requestError.message : 'Не удалось удалить встречу.') }
+    finally { setBusy(false) }
+  }
+
+  return <>
+    <PageHeader title="Расписание" description="Создавайте встречи и управляйте своими записями." />
+    {status !== 'error' && error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+    {notice && <Alert severity="success" sx={{ mb: 2 }}>{notice}</Alert>}
+    <DataStateView status={status} isEmpty={false} emptyTitle="" emptyDescription="" errorMessage={error} onRetry={reload}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr' }, gap: 2 }}>
+        <Paper component="form" onSubmit={submit} variant="outlined" sx={{ p: 3 }}>
+          <Typography variant="h5" sx={{ mb: 2 }}>{editingId === null ? 'Запись на встречу' : 'Изменить встречу'}</Typography>
+          <Stack spacing={2}>
+            <TextField select label="Наставник" value={mentorId} onChange={(event) => setMentorId(event.target.value)} required disabled={editingId !== null}>
+              {mentors.filter((mentor) => mentor.is_active).map((mentor) => <MenuItem key={mentor.id} value={String(mentor.id)}>{mentor.full_name}</MenuItem>)}
+            </TextField>
+            {mentors.filter((mentor) => mentor.is_active).length === 0 && <Typography variant="body2">Нет доступных наставников. <Button component={RouterLink} to="/mentors">Каталог</Button></Typography>}
+            <TextField label="Дата и время" type="datetime-local" value={date} onChange={(event) => setDate(event.target.value)} slotProps={{ inputLabel: { shrink: true } }} required />
+            <TextField label="Тема встречи" value={topic} onChange={(event) => setTopic(event.target.value)} required inputProps={{ minLength: 3, maxLength: 200 }} />
+            <Stack direction="row" spacing={1}><Button type="submit" variant="contained" disabled={busy || !user?.student_id}>{editingId === null ? 'Записаться' : 'Сохранить'}</Button>{editingId !== null && <Button onClick={resetForm} disabled={busy}>Отмена</Button>}</Stack>
+            <Typography variant="caption" color="text.secondary">Доступность времени проверяется при сохранении.</Typography>
+          </Stack>
+        </Paper>
+        <Paper variant="outlined" sx={{ p: 3 }}><Typography variant="h5">Мои встречи</Typography>
+          {meetings.length === 0 ? <Typography color="text.secondary" sx={{ mt: 2 }}>Встреч пока нет.</Typography> : <Stack spacing={2} sx={{ mt: 2 }}>
+            {[...meetings].sort((a, b) => Date.parse(a.scheduled_at) - Date.parse(b.scheduled_at)).map((meeting) => <Box key={meeting.id} sx={{ border: 1, borderColor: 'divider', borderRadius: 1, p: 2 }}>
+              <Typography fontWeight={700}>{meeting.topic}</Typography>
+              <Typography variant="body2">{mentors.find((mentor) => mentor.id === meeting.mentor_id)?.full_name ?? 'Наставник недоступен'}</Typography>
+              <Typography variant="body2" color="text.secondary">{new Date(meeting.scheduled_at).toLocaleString('ru-RU')} · {meeting.duration_minutes} мин.</Typography>
+              <Typography variant="body2">Статус: {{ requested: 'Ожидает ответа', confirmed: 'Подтверждено', cancelled: 'Отменено' }[meeting.status]}</Typography>
+              <Button disabled={busy} onClick={() => { setEditingId(meeting.id); setMentorId(String(meeting.mentor_id)); setDate(localDateTime(meeting.scheduled_at)); setTopic(meeting.topic); setError(''); setNotice('') }}>Изменить</Button>
+              <Button color="error" disabled={busy} onClick={() => void remove(meeting.id)}>Удалить</Button>
+            </Box>)}
+          </Stack>}
+        </Paper>
       </Box>
-      <Snackbar open={isBooked} autoHideDuration={3800} onClose={() => setIsBooked(false)} message="Время выбрано — заявка на встречу создана" action={<CheckCircleRounded color="success" />} />
-    </>
-  )
+    </DataStateView>
+  </>
 }

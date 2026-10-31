@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import SearchRounded from '@mui/icons-material/SearchRounded'
-import { Avatar, Box, InputAdornment, MenuItem, Paper, Select, Stack, TextField, Typography } from '@mui/material'
+import { Avatar, Box, Button, InputAdornment, MenuItem, Paper, Select, Stack, TextField, Typography } from '@mui/material'
+import { Link as RouterLink } from 'react-router-dom'
 import { getMentors, type MentorResponse } from '../entities/mentor/api/mentors'
 import { ApiRequestError } from '../shared/api/client'
 import type { DataStatus } from '../shared/model/dataStatus'
@@ -59,6 +60,7 @@ export function MentorsPage() {
               </Stack>
               {mentor.company && <Typography variant="body2" sx={{ mt: 2 }}>{mentor.company}</Typography>}
               {mentor.bio && <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>{mentor.bio}</Typography>}
+              <Button component={RouterLink} to={`/schedule?mentor=${mentor.id}`} variant="outlined" sx={{ mt: 2 }}>Записаться</Button>
             </Paper>
           ))}
         </Box>
