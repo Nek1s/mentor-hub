@@ -1,13 +1,10 @@
 import { AppRouter } from './router/AppRouter'
 import { AuthProvider } from './providers/AuthProvider'
-import { AppDataProvider } from './providers/AppDataProvider'
 
 function App() {
   return (
     <AuthProvider>
-      <AppDataProvider>
-        <AppRouter />
-      </AppDataProvider>
+      <AppRouter />
     </AuthProvider>
   )
 }
