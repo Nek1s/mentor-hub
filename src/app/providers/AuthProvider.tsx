@@ -1,34 +1,10 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { authApi, type AuthUser, type LoginPayload, type RegisterPayload } from '../../shared/api/auth'
+import { clearTokens, readTokens, saveTokens, sessionExpiredEvent, type StoredTokens } from '../../shared/api/client'
 import { AuthContext, type AuthStatus } from './AuthContext'
-
-const accessTokenKey = 'mentorhub_access_token'
-const refreshTokenKey = 'mentorhub_refresh_token'
 
 type AuthProviderProps = {
   children: ReactNode
-}
-
-type StoredTokens = {
-  accessToken: string
-  refreshToken: string
-}
-
-function readTokens(): StoredTokens | null {
-  const accessToken = localStorage.getItem(accessTokenKey)
-  const refreshToken = localStorage.getItem(refreshTokenKey)
-
-  return accessToken && refreshToken ? { accessToken, refreshToken } : null
-}
-
-function saveTokens(tokens: StoredTokens) {
-  localStorage.setItem(accessTokenKey, tokens.accessToken)
-  localStorage.setItem(refreshTokenKey, tokens.refreshToken)
-}
-
-function clearTokens() {
-  localStorage.removeItem(accessTokenKey)
-  localStorage.removeItem(refreshTokenKey)
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
@@ -69,34 +45,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   useEffect(() => {
     let isActive = true
-    const storedTokens = readTokens()
-
-    if (!storedTokens) {
-      return undefined
-    }
+    const onExpired = () => { setUser(null); setStatus('unauthenticated') }
+    window.addEventListener(sessionExpiredEvent, onExpired)
 
     const restoreSession = async () => {
+      if (!readTokens()) return
       try {
-        const currentUser = await authApi.getCurrentUser(storedTokens.accessToken)
+        const currentUser = await authApi.getCurrentUser()
         if (isActive) {
           setUser(currentUser)
           setStatus('authenticated')
         }
       } catch {
-        try {
-          const refreshed = await authApi.refresh(storedTokens.refreshToken)
-          const currentUser = await authApi.getCurrentUser(refreshed.access_token)
-          if (isActive) {
-            saveTokens({ accessToken: refreshed.access_token, refreshToken: storedTokens.refreshToken })
-            setUser(currentUser)
-            setStatus('authenticated')
-          }
-        } catch {
-          clearTokens()
-          if (isActive) {
-            setUser(null)
-            setStatus('unauthenticated')
-          }
+        if (isActive) {
+          setUser(null)
+          setStatus('unauthenticated')
         }
       }
     }
@@ -104,6 +67,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     void restoreSession()
     return () => {
       isActive = false
+      window.removeEventListener(sessionExpiredEvent, onExpired)
     }
   }, [])
 
