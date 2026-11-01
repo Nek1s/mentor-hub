@@ -8,7 +8,7 @@ import { DataStateView } from '../shared/ui/DataStateView'
 import { PageHeader } from '../shared/ui/PageHeader'
 
 export function ProfilePage() {
-  const { user } = useAuth()
+  const { user, updateUserName } = useAuth()
   const [student, setStudent] = useState<Student | null>(null)
   const [status, setStatus] = useState<DataStatus>('loading')
   const [error, setError] = useState('')
@@ -46,6 +46,7 @@ export function ProfilePage() {
     try {
       const result = await updateStudent(student.id, { full_name: fullName.trim(), goal: goal.trim() || null })
       setStudent(result)
+      updateUserName(result.full_name)
       setFullName(result.full_name)
       setGoal(result.goal ?? '')
       setEditing(false)

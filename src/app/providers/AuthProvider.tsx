@@ -71,5 +71,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, [])
 
-  return <AuthContext.Provider value={{ status, user, signIn, signUp, signOut }}>{children}</AuthContext.Provider>
+  const updateUserName = (fullName: string) => {
+    setUser((current) => current ? { ...current, full_name: fullName } : null)
+  }
+
+  return <AuthContext.Provider value={{ status, user, signIn, signUp, signOut, updateUserName }}>{children}</AuthContext.Provider>
 }
